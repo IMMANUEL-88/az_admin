@@ -1,0 +1,130 @@
+{
+  "users": [
+    {
+      "_id": "60d0fe4f5311236168a109cc",
+      "name": "Admin User",
+      "email": "admin@example.com",
+      "password": "adminpassword",
+      "role": "admin"
+    },
+    {
+      "_id": "60d0fe4f5311236168a109cd",
+      "name": "Another Admin",
+      "email": "admin2@example.com",
+      "password": "adminpassword2",
+      "role": "admin"
+    },
+    {
+      "_id": "60d0fe4f5311236168a109ce",
+      "name": "John Doe",
+      "email": "john.doe@example.com",
+      "password": "password123",
+      "role": "user"
+    },
+    {
+      "_id": "60d0fe4f5311236168a109cf",
+      "name": "Jane Smith",
+      "email": "jane.smith@example.com",
+      "password": "password123",
+      "role": "user"
+    },
+    {
+      "_id": "60d0fe4f5311236168a109d0",
+      "name": "Peter Jones",
+      "email": "peter.jones@example.com",
+      "password": "password123",
+      "role": "user"
+    },
+    {
+      "_id": "60d0fe4f5311236168a109d1",
+      "name": "Mary Williams",
+      "email": "mary.williams@example.com",
+      "password": "password123",
+      "role": "user"
+    },
+    {
+      "_id": "60d0fe4f5311236168a109d2",
+      "name": "David Brown",
+      "email": "david.brown@example.com",
+      "password": "password123",
+      "role": "user"
+    }
+  ],
+  "events": [
+    {
+      "_id": "60d0fe4f5311236168a109d3",
+      "title": "Tech Conference 2024",
+      "description": "Annual conference for developers and tech enthusiasts.",
+      "startTime": "2024-10-20T09:00:00.000Z",
+      "endTime": "2024-10-22T17:00:00.000Z",
+      "venue": {
+        "name": "Convention Center",
+        "address": "123 Main St, Anytown, USA",
+        "capacity": 2000
+      },
+      "createdBy": "60d0fe4f5311236168a109cc"
+    },
+    {
+      "_id": "60d0fe4f5311236168a109d4",
+      "title": "Local Hackathon",
+      "description": "A weekend-long hackathon for local developers.",
+      "startTime": "2024-11-15T18:00:00.000Z",
+      "endTime": "2024-11-17T18:00:00.000Z",
+      "venue": {
+        "name": "Community Tech Hub",
+        "address": "456 Oak Ave, Anytown, USA",
+        "capacity": 100
+      },
+      "createdBy": "60d0fe4f5311236168a109cc"
+    },
+    {
+      "_id": "60d0fe4f5311236168a109d5",
+      "title": "Design Workshop",
+      "description": "A workshop for UI/UX designers.",
+      "startTime": "2024-12-05T10:00:00.000Z",
+      "endTime": "2024-12-05T16:00:00.000Z",
+      "venue": {
+        "name": "Creative Studio",
+        "address": "789 Pine St, Anytown, USA",
+        "capacity": 50
+      },
+      "createdBy": "60d0fe4f5311236168a109cd"
+    }
+  ],
+  "attendances": [
+    {
+      "user": "60d0fe4f5311236168a109ce",
+      "event": "60d0fe4f5311236168a109d3",
+      "checkInTime": "2024-10-20T09:05:00.000Z",
+      "checkOutTime": "2024-10-20T17:00:00.000Z"
+    },
+    {
+      "user": "60d0fe4f5311236168a109cf",
+      "event": "60d0fe4f5311236168a109d3",
+      "checkInTime": "2024-10-20T09:15:00.000Z",
+      "checkOutTime": "2024-10-20T16:45:00.000Z"
+    },
+    {
+      "user": "60d0fe4f5311236168a109d0",
+      "event": "60d0fe4f5311236168a109d3",
+      "checkInTime": "2024-10-21T09:00:00.000Z"
+    },
+    {
+      "user": "60d0fe4f5311236168a109d1",
+      "event": "60d0fe4f5311236168a109d4",
+      "checkInTime": "2024-11-15T18:30:00.000Z",
+      "checkOutTime": "2024-11-17T17:30:00.000Z"
+    },
+    {
+      "user": "60d0fe4f5311236168a109d2",
+      "event": "60d0fe4f5311236168a109d4",
+      "checkInTime": "2024-11-15T19:00:00.000Z"
+    },
+    {
+      "user": "60d0fe4f5311236168a109ce",
+      "event": "60d0fe4f5311236168a109d5",
+      "checkInTime": "2024-12-05T10:00:00.000Z",
+      "checkOutTime": "2024-12-05T15:55:00.000Z"
+    }
+  ]
+}
