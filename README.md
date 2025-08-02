@@ -69,10 +69,24 @@ A powerful Flutter-based attendance and team management app built for companies.
 
 ```
 lib/
-├── screens/
-├── widgets/
+├── Api/
+├── common/
+  ├── styles/
+  ├── widgets/
+├── functions/
+├── graph/
 ├── models/
-├── services/
+├── navigation_pages/
+├── pages/
+├── utils/
+  ├── constants/
+  ├── device/
+  ├── helper_functions/
+  ├── loaders/
+  ├── popups/
+  ├── theme/
+    ├── custom_themes/
+  ├── validators/
 ```
 
 ## 📬 Backend APIs
@@ -85,6 +99,9 @@ git clone https://github.com/IMMANUEL-88/az_admin.git
 cd az_admin
 flutter pub get
 flutter run
+```
+**Note**: While you can clone and run the app locally, please be aware that the backend APIs are currently hosted on a local server (localhost). To test full functionality, you'll need to set up the backend environment separately.
+
 
 
 
