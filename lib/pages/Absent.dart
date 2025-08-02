@@ -44,7 +44,7 @@ class _AbsentState extends State<Absent> {
     absentUsers = allUsers.where((user) {
       return !presentData.presentUsers.any((presentUser) {
         DateTime userDate = DateTime.parse(presentUser['Date']);
-        return user['Userid'] == presentUser['Userid'] &&
+        return user['userId'] == presentUser['userId'] &&
             userDate.year == selectedDate.year &&
             userDate.month == selectedDate.month &&
             userDate.day == selectedDate.day;
@@ -54,7 +54,7 @@ class _AbsentState extends State<Absent> {
 
   void removeFromList(String userid) {
     setState(() {
-      absentUsers.removeWhere((user) => user['Userid'].toString() == userid);
+      absentUsers.removeWhere((user) => user['userId'].toString() == userid);
     });
   }
 
@@ -115,8 +115,8 @@ class _AbsentState extends State<Absent> {
                     padding: const EdgeInsets.symmetric(vertical: ESizes.sm
                     ),
                     child: CFA(
-                      userid: userData['Userid'].toString() ?? '',
-                      name: userData['Username'] ?? '',
+                      userid: userData['userId'].toString() ?? '',
+                      name: userData['username'] ?? '',
                       date: _selectedDate,
                       removeFromList: removeFromList,
                     ),

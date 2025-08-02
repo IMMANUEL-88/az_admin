@@ -17,9 +17,9 @@ class EFullScreenLoader {
       builder: (_) => PopScope(
         canPop: false, // Disable popping with the back button
         child: Container(
-          color: EHelperFunctions.isDarkMode(Get.context!)
-              ? Colors.black
-              : Colors.white,
+          color: Colors.white.withValues(
+            alpha: 0.6,
+          ),
           width: double.infinity,
           height: double.infinity,
           child: Center(
@@ -28,9 +28,8 @@ class EFullScreenLoader {
               children: [
                 EAnimationLoaderWidget(
                   text: text,
-                  image: EHelperFunctions.isDarkMode(Get.context!)
-                      ? EImages.lightLoader
-                      : EImages.darkLoader, // Pass the image parameter here
+                  image:
+                      "assets/animations/fingerprint.json", // Pass the image parameter here
                 ),
               ],
             ),

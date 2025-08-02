@@ -5,6 +5,7 @@ import 'package:admin/Api/Api.dart';
 import 'package:admin/common/widgets/appbar.dart';
 import 'package:admin/utils/TXFB.dart';
 import 'package:admin/utils/helper_functions/helper_functions.dart';
+import 'package:admin/utils/loaders/fullscreen_loader.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
@@ -29,7 +30,7 @@ class _AddUserPageState extends State<AddUserPage> {
   final TextEditingController _ipController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   File? _image;
-  String _base64Image='';
+  String _base64Image = '';
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +102,8 @@ class _AddUserPageState extends State<AddUserPage> {
               GestureDetector(
                 onTap: _pickImage,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 20.0),
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 16.0, horizontal: 20.0),
                   decoration: BoxDecoration(
                     color: dark ? Colors.grey[850] : Colors.grey[200],
                     borderRadius: BorderRadius.circular(10.0),
@@ -128,25 +130,30 @@ class _AddUserPageState extends State<AddUserPage> {
                 ),
               ),
 
-              const SizedBox(height: ESizes.md,),
+              const SizedBox(
+                height: ESizes.md,
+              ),
               _image != null
                   ? Image.file(
-                _image!,
-                height: 100,
-              )
+                      _image!,
+                      height: 100,
+                    )
                   : Container(),
               const SizedBox(height: ESizes.spaceBtwSections),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
                   onPressed: () async {
-                    _addUser(
-                      _useridController.text,
-                      _usernameController.text,
-                      _passwordController.text,
-                      _ipController.text,
-                      _emailController.text,
-                    );
+                    Future<bool> check =
+                        Verify().checkUserIdExists(_useridController.text);
+                    if (await check) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text("User ID Already Exists"),
+                        duration: Duration(seconds: 2),
+                      ));
+                    } else {
+                      _addUser();
+                    }
                   },
                   label: Text(
                     'Upload User Profile',
@@ -157,7 +164,10 @@ class _AddUserPageState extends State<AddUserPage> {
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  icon: Icon(Icons.cloud_upload, color: dark? EColors.dark: EColors.light,),
+                  icon: Icon(
+                    Icons.cloud_upload,
+                    color: dark ? EColors.dark : EColors.light,
+                  ),
                 ),
               ),
             ],
@@ -178,31 +188,31 @@ class _AddUserPageState extends State<AddUserPage> {
     }
   }
 
-  Future<void> _addUser(String userid, String username, String password, String ip, String email) async {
+  Future<void> _addUser() async {
     try {
-      if (_base64Image.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text("Please pick an image"),
-          duration: Duration(seconds: 2),
-        ));
-        return;
-      }
-      await AddUser().addData(userid, username, password, ip, email, _base64Image);
+      EFullScreenLoader.openLoadingDialog("Adding user...");
+      await AddUser().addData(
+        userId: _useridController.text,
+        username: _usernameController.text,
+        password: _passwordController.text,
+        ip: _ipController.text,
+        email: _emailController.text,
+        image: _base64Image,
+        // phone: "+1234567890" // Add if you have a phone input field
+      );
+
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text("User Added Successfully"),
         duration: Duration(seconds: 2),
       ));
+
+      await Future.delayed(Duration(seconds: 6));
+      EFullScreenLoader.stopLoading();
       Navigator.of(context).pop();
-      if (kDebugMode) {
-        print('User added successfully');
-      }
     } catch (e) {
-      if (kDebugMode) {
-        print('Failed to add user: $e');
-      }
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text("Failed to add user"),
-        duration: Duration(seconds: 2),
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Failed to add user: ${e.toString()}"),
+        duration: const Duration(seconds: 2),
       ));
     }
   }

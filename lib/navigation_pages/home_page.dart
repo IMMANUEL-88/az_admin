@@ -58,8 +58,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1800),
-      lowerBound: 0.85,  // This controls the minimum scale
-      upperBound: 1.0,   // This controls the maximum scale
+      lowerBound: 0.85, // This controls the minimum scale
+      upperBound: 1.0, // This controls the maximum scale
     )..repeat(reverse: true);
 
     fetchData();
@@ -87,10 +87,23 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     });
     try {
       await presentData.fetchData();
+      print('All present users: ${presentData.presentUsers.length}'); // Debug
+      print(
+          'Sample dates: ${presentData.presentUsers.take(3).map((u) => u['Date'])}'); // Debug
+
       allUsers = presentData.allUsers;
       filteredPresentUsers = presentData.presentUsers;
       _filterPresentUsersByDate(_selectedDate);
+
+      print('Filtered present users: ${filteredPresentUsers.length}'); // Debug
+      print(
+          'Filtered dates: ${filteredPresentUsers.map((u) => u['Date'])}'); // Debug
+
       filterAbsentUsers(_selectedDate);
+      print('All present users dates:');
+      presentData.presentUsers.forEach((user) {
+        print('${user['userId']}: ${user['Date']}');
+      });
 
       // After data is fetched, set the state and start the animation
       setState(() {
@@ -112,22 +125,28 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
   }
 
   void _filterPresentUsersByDate(DateTime selectedDate) {
-    filteredPresentUsers = presentData.presentUsers.where((user) {
-      DateTime userDate = DateTime.parse(user['Date']);
-      return userDate.year == selectedDate.year &&
-          userDate.month == selectedDate.month &&
-          userDate.day == selectedDate.day;
-    }).toList();
-    setState(() {
-      presentNo = filteredPresentUsers.length.toDouble();
-    });
-  }
+  DateTime startOfWeek = selectedDate.subtract(Duration(days: selectedDate.weekday % 7));
+  DateTime endOfWeek = startOfWeek.add(Duration(days: 6));
+
+  filteredPresentUsers = presentData.presentUsers.where((user) {
+    DateTime userDate = DateTime.parse(user['Date']);
+    return userDate.isAfter(startOfWeek.subtract(Duration(days: 1))) &&
+           userDate.isBefore(endOfWeek.add(Duration(days: 1)));
+  }).toList();
+
+  print('Showing week from ${startOfWeek.toIso8601String()} to ${endOfWeek.toIso8601String()}');
+  print('Filtered users count: ${filteredPresentUsers.length}');
+
+  setState(() {
+    presentNo = filteredPresentUsers.length.toDouble();
+  });
+}
 
   void filterAbsentUsers(DateTime selectedDate) {
     absentUsers = allUsers.where((user) {
       return !presentData.presentUsers.any((presentUser) {
         DateTime userDate = DateTime.parse(presentUser['Date']);
-        return user['Userid'] == presentUser['Userid'] &&
+        return user['userId'] == presentUser['userId'] &&
             userDate.year == selectedDate.year &&
             userDate.month == selectedDate.month &&
             userDate.day == selectedDate.day;
@@ -136,24 +155,25 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     setState(() {});
   }
 
-  List<double> getWeeklyPresentCount() {
-    List<int> weeklyCount = List.filled(7, 0);
-    DateTime startOfWeek = _selectedDate.subtract(Duration(days: _selectedDate.weekday % 7)); // Get Sunday of the week
+List<double> getWeeklyPresentCount() {
+  // Get Sunday of current week (week starts on Sunday)
+  DateTime startOfWeek = _selectedDate.subtract(Duration(days: _selectedDate.weekday % 7));
 
-    for (int i = 0; i < 7; i++) {
-      DateTime day = startOfWeek.add(Duration(days: i));
-      int count = presentData.presentUsers.where((user) {
-        DateTime userDate = DateTime.parse(user['Date']);
-        return userDate.year == day.year &&
-            userDate.month == day.month &&
-            userDate.day == day.day;
-      }).length;
+  List<double> weeklyCount = List.filled(7, 0.0);
 
-      weeklyCount[i] = count;
-    }
-
-    return weeklyCount.map((e) => e.toDouble()).toList();
+  for (int i = 0; i < 7; i++) {
+    DateTime currentDay = startOfWeek.add(Duration(days: i));
+    weeklyCount[i] = presentData.presentUsers.where((user) {
+      DateTime userDate = DateTime.parse(user['Date']);
+      return userDate.year == currentDay.year &&
+             userDate.month == currentDay.month &&
+             userDate.day == currentDay.day;
+    }).length.toDouble();
   }
+
+  print('Weekly counts from ${startOfWeek.toIso8601String()} to ${startOfWeek.add(Duration(days: 6)).toIso8601String()}: $weeklyCount');
+  return weeklyCount;
+}
 
   @override
   Widget build(BuildContext context) {
@@ -182,7 +202,8 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
           child: Padding(
             padding: const EdgeInsets.all(ESizes.defaultSpace),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start, // Align text to the start
+              crossAxisAlignment:
+                  CrossAxisAlignment.start, // Align text to the start
               children: [
                 if (isLoading)
                   AnimatedBuilder(
@@ -207,25 +228,29 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     child: Container(
                       height: EHelperFunctions.screenHeight() * 0.3,
                       decoration: BoxDecoration(
-                        // color: dark ? EColors.dark.withOpacity(0.3) : Colors.white,
+                        // color: dark ? EColors.dark.withValues(alpha:0.3) : Colors.white,
                         color: Colors.transparent,
                         borderRadius: BorderRadius.circular(15),
-                        border: Border.all(color: dark? Colors.white.withOpacity(0.3): Colors.grey.withOpacity(0.3),),
+                        border: Border.all(
+                          color: dark
+                              ? Colors.white.withValues(alpha: 0.3)
+                              : Colors.grey.withValues(alpha: 0.3),
+                        ),
                         // boxShadow: [
                         //   BoxShadow(
-                        //     color: Colors.white.withOpacity(0.3),
+                        //     color: Colors.white.withValues(alpha:0.3),
                         //     blurRadius: 10,
                         //     offset: const Offset(0, 4), // Changes position of shadow
                         //   ),
                         // ],
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: ESizes.spaceBtwItems),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: ESizes.spaceBtwItems),
                         child: BarGraph(weeklySummary: weeklyData),
                       ),
                     ),
                   ),
-
                 const SizedBox(height: ESizes.spaceBtwSections),
                 _buildSectionHeader('Attendance Overview', context),
                 const SizedBox(height: ESizes.spaceBtwItems),
@@ -238,13 +263,15 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                         text: 'Present Data',
                         context: context,
                         destination: const Present(),
-                        imagePath: EImages.present1,
+                        imagePath:
+                            dark ? EImages.presentDark : EImages.presentLight,
                       ),
                       _buildPage(
                         text: 'Absent Data',
                         context: context,
                         destination: const Absent(),
-                        imagePath: EImages.present1,
+                        imagePath:
+                            dark ? EImages.absentDark : EImages.absentLight,
                       ),
                     ],
                   ),
@@ -260,35 +287,41 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
                     height: 150,
                     width: EHelperFunctions.screenWidth() * 0.9,
                     decoration: BoxDecoration(
-                      color: dark ? Colors.grey[900] : Colors.grey[100],
+                      // color: dark ? Colors.grey[900] : Colors.grey[100],
                       borderRadius: BorderRadius.circular(15),
                       image: DecorationImage(
-                        image: const AssetImage(EImages.present1),
+                        image: AssetImage(
+                          dark ? EImages.announceDark : EImages.announceLight,
+                        ),
                         fit: BoxFit.cover,
-                        colorFilter: ColorFilter.mode(
-                          dark ? Colors.black.withOpacity(0.6) : Colors.white.withOpacity(0.6),
-                          BlendMode.dstATop,
-                        ),
+                        // colorFilter: ColorFilter.mode(
+                        //   dark
+                        //       ? Colors.black.withValues(alpha: 1)
+                        //       : Colors.white.withValues(alpha: 1),
+                        //   BlendMode.dstATop,
+                        // ),
                       ),
                     ),
-                    child: Center(
-                      child: Text(
-                        'Announcements',
-                        style: Theme.of(context)
-                            .textTheme
-                            .headlineMedium!
-                            .copyWith(
-                          color: dark ? EColors.light : EColors.dark,
-                          shadows: [
-                            Shadow(
-                              blurRadius: 10.0,
-                              color: dark? Colors.black.withOpacity(0.5): Colors.grey.withOpacity(0.8),
-                              offset: const Offset(2, 2),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                    // child: Center(
+                    //   child: Text(
+                    //     'Announcements',
+                    //     style: Theme.of(context)
+                    //         .textTheme
+                    //         .headlineMedium!
+                    //         .copyWith(
+                    //       color: dark ? EColors.light : EColors.dark,
+                    //       shadows: [
+                    //         Shadow(
+                    //           blurRadius: 10.0,
+                    //           color: dark
+                    //               ? Colors.black.withValues(alpha:0.5)
+                    //               : Colors.grey.withValues(alpha:0.8),
+                    //           offset: const Offset(2, 2),
+                    //         ),
+                    //       ],
+                    //     ),
+                    //   ),
+                    // ),
                   ),
                 ),
               ],
@@ -303,10 +336,10 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
     return Text(
       title,
       style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-        color: EHelperFunctions.isDarkMode(context)
-            ? EColors.light
-            : EColors.dark,
-      ),
+            color: EHelperFunctions.isDarkMode(context)
+                ? EColors.light
+                : EColors.dark,
+          ),
     );
   }
 
@@ -323,33 +356,17 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
         margin: const EdgeInsets.only(right: 1),
         width: EHelperFunctions.screenWidth() * 0.9,
         decoration: BoxDecoration(
-          color: dark ? Colors.grey[900] : Colors.grey[100],
+          // color: dark ? Colors.grey[900] : Colors.grey[100],
           borderRadius: BorderRadius.circular(15),
           image: DecorationImage(
             image: AssetImage(imagePath),
             fit: BoxFit.cover,
-            colorFilter: ColorFilter.mode(
-              dark ? Colors.black.withOpacity(0.6) : Colors.white.withOpacity(0.6),
-              BlendMode.dstATop,
-            ),
-          ),
-        ),
-        child: Center(
-          child: Text(
-            text,
-            style: Theme.of(context)
-                .textTheme
-                .headlineMedium!
-                .copyWith(
-              color: dark ? EColors.light : EColors.dark,
-              shadows: [
-                Shadow(
-                  blurRadius: 10.0,
-                  color: dark? Colors.black.withOpacity(0.5): Colors.grey.withOpacity(0.8),
-                  offset: const Offset(2, 2),
-                ),
-              ],
-            ),
+            // colorFilter: ColorFilter.mode(
+            //   dark
+            //       ? Colors.black.withValues(alpha: 1)
+            //       : Colors.white.withValues(alpha: 1),
+            //   BlendMode.dstATop,
+            // ),
           ),
         ),
       ),
@@ -361,7 +378,7 @@ class _HomePageState extends State<HomePage> with TickerProviderStateMixin {
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(
         pageCount,
-            (index) => Container(
+        (index) => Container(
           margin: const EdgeInsets.symmetric(horizontal: 4.0),
           width: 8.0,
           height: 8.0,

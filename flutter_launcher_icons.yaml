@@ -1,0 +1,10 @@
+# flutter pub run flutter_launcher_icons
+flutter_launcher_icons:
+  android: true
+  web:
+    generate: false
+  ios: false
+  remove_alpha_ios: true
+  image_path: "assets/logos/ic_launcher2.png"
+  adaptive_icon_foreground: "assets/logos/ic_launcher2.png"
+  adaptive_icon_background: "#ffffff"

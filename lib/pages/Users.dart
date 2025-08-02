@@ -1,70 +1,115 @@
+import 'dart:convert';
+import 'dart:typed_data';
+import 'package:admin/pages/adduser.dart';
+import 'package:admin/utils/helper_functions/helper_functions.dart';
 import 'package:flutter/material.dart';
-import '../Api/Api.dart';
-import '../models/user_model.dart';
-import 'UserDetails.dart';
-import 'adduser.dart';
+
+import 'package:admin/Api/Api.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:iconsax/iconsax.dart';
+import '../common/widgets/appbar.dart';
+import '../utils/CFU.dart';
 import '../utils/constants/colors.dart';
 
 class Users extends StatefulWidget {
-  const Users({Key? key}) : super(key: key);
+  const Users({super.key});
 
   @override
-  _UsersState createState() => _UsersState();
+  State<Users> createState() => _UsersState();
 }
 
 class _UsersState extends State<Users> {
-  late Future<User?> _futureUser;
+  late Future<List<dynamic>?> _futureUsers;
 
   @override
   void initState() {
     super.initState();
-    // For demonstration, we'll fetch a single user. In a real app, you'd fetch a list.
-    _futureUser = ApiService().fetchUser("some_user_id");
+    _futureUsers = Api().fetchUsers(); // Initialize _futureUsers here
   }
 
   @override
   Widget build(BuildContext context) {
+    final dark = EHelperFunctions.isDarkMode(context);
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-              context, MaterialPageRoute(builder: (context) => const AddUserPage()));
-        },
-        backgroundColor: EColors.primaryColor,
-        child: const Icon(
-          Icons.add,
-          color: Colors.white,
-        ),
+      appBar: EAppBar(
+        title: Text('Users', style: Theme.of(context).textTheme.headlineMedium),
+        actions: [IconButton(onPressed: () {}, icon: const Icon(Iconsax.user))],
       ),
-      body: FutureBuilder<User?>(
-        future: _futureUser,
+      body: FutureBuilder<List<dynamic>?>(
+        future: _futureUsers,
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (snapshot.hasData) {
-            final User user = snapshot.data!;
-            return ListView(
+          if (snapshot.connectionState == ConnectionState.done) {
+            if (snapshot.hasError) {
+              return const Center(child: Text("Error fetching users"));
+            }
+
+            final users = snapshot.data ?? [];
+            return Column(
               children: [
-                ListTile(
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => UserDetails(user: user)));
-                  },
-                  leading: const CircleAvatar(
-                    backgroundColor: Colors.grey,
-                    child: Icon(Icons.person),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: users.length,
+                    itemBuilder: (context, index) {
+                      final user = users[index];
+                      final profileData = user['profile'];
+                      Uint8List? decodedBytes;
+
+// Try to decode profile if it exists and is valid base64
+                      if (profileData is String && profileData.isNotEmpty) {
+                        try {
+                          decodedBytes = base64Decode(profileData);
+                        } catch (e) {
+                          decodedBytes = null; // fallback if base64 is invalid
+                        }
+                      }
+
+// Always return CFU, pass null if no profile
+                      return CFU(
+                        userid: user['userid'].toString(),
+                        name: user['username'],
+                        profile: decodedBytes,
+                        removeFromList: (id) {},
+                      );
+                    },
                   ),
-                  title: Text(user.username),
-                  subtitle: Text(user.email),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const AddUserPage()),
+                        );
+                      },
+                      icon: Icon(
+                        FontAwesomeIcons.userPlus,
+                        color: dark ? EColors.dark : EColors.light,
+                      ),
+                      label: Text(
+                        'Add User',
+                        style: TextStyle(
+                            color: dark ? Colors.black : Colors.white),
+                      ),
+                      // style: ElevatedButton.styleFrom(
+                      //   primary: EColors.primaryColor, // Use your primary color
+                      //   padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
+                      //   textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      // ),
+                    ),
+                  ),
                 ),
               ],
             );
           } else {
-            return const Center(child: Text('No user found.'));
+            return const Center(
+              child: CircularProgressIndicator(
+                color: EColors.primaryColor,
+              ),
+            );
           }
         },
       ),

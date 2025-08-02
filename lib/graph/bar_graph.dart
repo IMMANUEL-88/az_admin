@@ -9,93 +9,134 @@ class BarGraph extends StatelessWidget {
   final List weeklySummary;
   const BarGraph({super.key, required this.weeklySummary});
 
+// In BarGraph class
   @override
   Widget build(BuildContext context) {
     final dark = EHelperFunctions.isDarkMode(context);
-    // Initialize Bar Data
+    if (weeklySummary.length != 7) {
+      return Center(child: Text('Invalid weekly data format'));
+    }
+
+    // Handle empty data case
+    if (weeklySummary.every((v) => v == 0)) {
+      return Center(child: Text('No attendance data this week'));
+    }
+
+    // Calculate maxY safely
+    double maxY;
+    try {
+      maxY = (weeklySummary
+          .reduce((a, b) => (a as double) > (b as double) ? a : b) as double);
+      maxY = maxY + 2; // Add padding
+    } catch (e) {
+      maxY = 10; // Default value
+    }
+
     BarData myBarData = BarData(
-      sunNo: weeklySummary[0],
-      monNo: weeklySummary[1],
-      tueNo: weeklySummary[2],
-      wedNo: weeklySummary[3],
-      thuNo: weeklySummary[4],
-      friNo: weeklySummary[5],
-      satNo: weeklySummary[6],
+      sunNo: weeklySummary[0] as double,
+      monNo: weeklySummary[1] as double,
+      tueNo: weeklySummary[2] as double,
+      wedNo: weeklySummary[3] as double,
+      thuNo: weeklySummary[4] as double,
+      friNo: weeklySummary[5] as double,
+      satNo: weeklySummary[6] as double,
     );
     myBarData.initializeBarData();
 
-    return BarChart(BarChartData(
-      maxY: 100,
-      minY: 0,
-      gridData: const FlGridData(show: false),
-      borderData: FlBorderData(show: false),
-      titlesData: FlTitlesData(
-        show: true,
-        topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-        rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-        leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-        bottomTitles: AxisTitles(
-          sideTitles: SideTitles(
-            showTitles: true,
-            getTitlesWidget: (value, meta) => getBottomTiles(context, value, meta),
-            reservedSize: 45, // Increase this value if necessary
-          ),
-        ),
-      ),
-      barGroups: myBarData.barData.map((data) => BarChartGroupData(
-        x: data.x,
-        barRods: [
-          BarChartRodData(
-            toY: data.y,
-            color: EColors.primaryColor,
-            width: 25,
-            borderRadius: BorderRadius.circular(4),
-            backDrawRodData: BackgroundBarChartRodData(
-              show: true,
-              toY: 100,
-              color: dark? EColors.dark: Colors.grey[200],
+    return BarChart(
+      BarChartData(
+        maxY: maxY,
+        minY: 0,
+        gridData: const FlGridData(show: false),
+        borderData: FlBorderData(show: false),
+        titlesData: FlTitlesData(
+          show: true,
+          topTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: false,
+              getTitlesWidget: (value, meta) {
+                return Text(value.toInt().toString());
+              },
+              reservedSize: 30,
             ),
           ),
-        ],
-      )).toList(),
-    ));
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              getTitlesWidget: (value, meta) =>
+                  getBottomTiles(value, meta, context),
+              reservedSize: 45,
+            ),
+          ),
+        ),
+        barGroups: myBarData.barData
+            .map((data) => BarChartGroupData(
+                  x: data.x,
+                  barRods: [
+                    BarChartRodData(
+                      toY: data.y,
+                      color: EColors.primaryColor,
+                      width: 25,
+                      borderRadius: BorderRadius.circular(4),
+                      backDrawRodData: BackgroundBarChartRodData(
+                        show: true,
+                        toY: maxY,
+                        color: dark ? EColors.dark : Colors.grey[200],
+                      ),
+                    ),
+                  ],
+                ))
+            .toList(),
+      ),
+    );
   }
 }
 
-Widget getBottomTiles(BuildContext context, double value, TitleMeta meta) {
+Widget getBottomTiles(double value, TitleMeta meta, BuildContext context) {
   final isDarkMode = EHelperFunctions.isDarkMode(context);
-  final style = TextStyle(
-    color: isDarkMode ? Colors.white : Colors.black,
-    fontWeight: FontWeight.normal,
-    fontSize: 14,
-  );
 
-  Widget text;
+  // Determine the day label based on value
+  String dayLabel;
   switch (value.toInt()) {
     case 0:
-      text = Text('S', style: style);
+      dayLabel = 'S';
       break;
     case 1:
-      text = Text('M', style: style);
+      dayLabel = 'M';
       break;
     case 2:
-      text = Text('T', style: style);
+      dayLabel = 'T';
       break;
     case 3:
-      text = Text('W', style: style);
+      dayLabel = 'W';
       break;
     case 4:
-      text = Text('T', style: style);
+      dayLabel = 'T';
       break;
     case 5:
-      text = Text('F', style: style);
+      dayLabel = 'F';
       break;
     case 6:
-      text = Text('S', style: style);
+      dayLabel = 'S';
       break;
     default:
-      text = Text('', style: style);
-      break;
+      return const SizedBox.shrink();
   }
-  return const Text('');
+
+  return SideTitleWidget(
+    meta: meta,
+    space: 10,
+    child: Text(
+      dayLabel,
+      style: TextStyle(
+        color: isDarkMode ? Colors.white : Colors.black,
+        fontWeight: FontWeight.normal,
+        fontSize: 14,
+      ),
+    ),
+  );
 }

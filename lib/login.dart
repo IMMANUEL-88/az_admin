@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:admin/Api/Api.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'common/styles/spacing_style.dart';
 
 class Login extends StatefulWidget {
@@ -129,10 +130,7 @@ class _LoginState extends State<Login> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(context,
-                    MaterialPageRoute(builder: (context) => const NavigationMenu()));
-                  },
+                  onPressed: _submitForm,
                   child: const Text(
                     "Sign in",
                   ),
@@ -183,39 +181,40 @@ class _LoginState extends State<Login> {
     );
   }
 
-  // void _submitForm() async {
-  //   try {
-  //     FocusScope.of(context).requestFocus(FocusNode());
-  //     await Api().fetchData(adid.text);
-  //     bool login = Verify().verify(adid.text, pass.text);
-  //     if (login) {
-  //       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-  //         content: Text(
-  //           "Login Successful",
-  //         ),
-  //         duration: Duration(seconds: 2),
-  //       ));
-  //       EFullScreenLoader.openLoadingDialog('Loading, please wait...');
-  //       Future.delayed(const Duration(seconds: 4), () {
-  //         EFullScreenLoader.stopLoading();
-  //         Navigator.pushReplacement(context,
-  //             MaterialPageRoute(builder: (context) => const NavigationMenu()));
-  //       });
-  //     } else {
-  //       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-  //         content: Text(
-  //           "Login failed. Please check your credentials.",
-  //         ),
-  //         duration: Duration(seconds: 2),
-  //       ));
-  //     }
-  //   } catch (e) {
-  //     // Handle errors
-  //     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-  //       content: Text("Error: $e"),
-  //       duration: const Duration(seconds: 2),
-  //     ));
-  //     //ELoaders.errorSnackBar(title: 'Oh Snap!', message: e.toString());
-  //   }
-  // }
+  void _submitForm() async {
+    try {
+      // Show loading immediately
+      EFullScreenLoader.openLoadingDialog('Logging in...');
+
+      // Call the login API
+      final response =
+          await Api().loginAdmin(adid.text.trim(), pass.text.trim());
+
+      // Save login state and token
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isLoggedIn', true);
+      await prefs.setString('token', response['token']);
+      await prefs.setString('userId', response['userId']);
+
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text("Login Successful"),
+        duration: Duration(seconds: 2),
+      ));
+
+      // Navigate directly without delay
+
+      await Future.delayed(Duration(seconds: 6));
+      EFullScreenLoader.stopLoading();
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const NavigationMenu()),
+      );
+    } catch (e) {
+      EFullScreenLoader.stopLoading();
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Login failed: ${e.toString()}"),
+        duration: const Duration(seconds: 2),
+      ));
+    }
+  }
 }

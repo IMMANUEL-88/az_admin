@@ -30,7 +30,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  win32: ^5.5.1  
+  win32: ^5.5.1
   http: ^0.13.3
   image_picker: ^0.8.7
   google_fonts: ^4.0.4
@@ -48,6 +48,9 @@ dependencies:
   flutter_native_splash:
   fl_chart:
   font_awesome_flutter:
+  shared_preferences: ^2.5.3
+  flutter_launcher_icons: ^0.14.4
+  lottie: ^3.0.0
 
 dev_dependencies:
 #  flutter_launcher_icons:
@@ -80,6 +83,7 @@ flutter:
   assets:
     - assets/logos/
     - assets/animations/
+    - assets/images/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

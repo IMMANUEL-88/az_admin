@@ -3,9 +3,11 @@ import 'package:admin/common/widgets/primary_header_container.dart';
 import 'package:admin/common/widgets/settings_menu_tile.dart';
 import 'package:admin/login.dart';
 import 'package:admin/pages/Announcemt.dart';
+import 'package:admin/utils/loaders/fullscreen_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../common/widgets/section_heading.dart';
 import '../common/widgets/user_profile_tile.dart';
 import '../functions/prsnt.dart';
@@ -19,7 +21,8 @@ class ThemeController extends GetxController {
 
   void toggleThemeMode() {
     // Toggle directly between light and dark mode
-    if (themeMode.value == ThemeMode.dark || (themeMode.value == ThemeMode.system && Get.isDarkMode)) {
+    if (themeMode.value == ThemeMode.dark ||
+        (themeMode.value == ThemeMode.system && Get.isDarkMode)) {
       themeMode.value = ThemeMode.light;
     } else {
       themeMode.value = ThemeMode.dark;
@@ -34,7 +37,6 @@ class ThemeController extends GetxController {
     return themeMode.value == ThemeMode.dark;
   }
 }
-
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -51,7 +53,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    _selectedDate = DateTime.now(); // Initialize _selectedDate with current date
+    _selectedDate =
+        DateTime.now(); // Initialize _selectedDate with current date
     fetchData(); // Fetch initial data
   }
 
@@ -74,7 +77,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   // Function to get present count for the week
   List<int> getWeeklyPresentCount() {
     List<int> weeklyCount = List.filled(7, 0);
-    DateTime startOfWeek = _selectedDate.subtract(Duration(days: _selectedDate.weekday % 7)); // Get Sunday of the week
+    DateTime startOfWeek = _selectedDate.subtract(
+        Duration(days: _selectedDate.weekday % 7)); // Get Sunday of the week
 
     for (int i = 0; i < 7; i++) {
       DateTime day = startOfWeek.add(Duration(days: i));
@@ -129,12 +133,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           .bodySmall!
                           .apply(color: dark ? EColors.light : EColors.dark),
                     ),
-                    onPressed: () {
+                    onPressed: () async {
+                      EFullScreenLoader.openLoadingDialog("Logging out...");
+                      // Clear the login state and token
+                      final prefs = await SharedPreferences.getInstance();
+                      await prefs.remove('isLoggedIn');
+                      await prefs.remove('token');
+                      await prefs.remove('userId');
+
+                      await Future.delayed(Duration(seconds: 3));
+                      EFullScreenLoader.stopLoading();
+                      // Navigate to login page and clear navigation stack
                       Navigator.pushAndRemoveUntil(
                         context,
-                        MaterialPageRoute(
-                            builder: (context) => const Login()),
-                            (Route<dynamic> route) => false,
+                        MaterialPageRoute(builder: (context) => const Login()),
+                        (Route<dynamic> route) => false,
                       );
                     },
                   ),
@@ -170,7 +183,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final ThemeController themeController = Get.put(ThemeController());
 
     // Convert the List<int> to List<double>
-    List<double> weeklyData = getWeeklyPresentCount().map((int value) => value.toDouble()).toList();
+    List<double> weeklyData =
+        getWeeklyPresentCount().map((int value) => value.toDouble()).toList();
 
     return Scaffold(
       body: SingleChildScrollView(

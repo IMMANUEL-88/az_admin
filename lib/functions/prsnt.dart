@@ -8,7 +8,7 @@ class prsnt {
   List<Map<String, dynamic>> allUsers = [];
 
   Future<void> fetchData() async {
-    final response = await http.get(Uri.parse('https://attendzone-backend.onrender.com/api/v1/attendance/data'));
+    final response = await http.get(Uri.parse('http://192.168.14.12:5000/api/v1/attendance/data'));
 
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);

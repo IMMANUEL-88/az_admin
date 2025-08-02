@@ -7,7 +7,7 @@ class MPF {
     if (!_isUpdated) { // Check if update has already been done
       // Format the date to a string that matches the expected format in your PHP
 
-      var url = Uri.parse("https://attendzone-backend.onrender.com/api/v1/attendance/admin/mark");
+      var url = Uri.parse("http://192.168.14.12:5000/api/v1/attendance/admin/mark");
       var response = await http.post(url, body: {
         'id': userId, // Ensure 'userId' is sent as a String
         'date': date,

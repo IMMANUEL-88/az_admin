@@ -128,7 +128,7 @@ class _PresentState extends State<Present> {
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8.0),
                     child: CFP(
-                      name: userData['Username'] ?? '',
+                      name: userData['username'] ?? '',
                       date: userData['Date'] ?? '',
                       timeIn: userData['time_in'] ?? '',
                       timeOut: userData['time_out'] ?? '',
@@ -145,4 +145,3 @@ class _PresentState extends State<Present> {
     );
   }
 }
-

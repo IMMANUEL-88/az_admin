@@ -1,10 +1,12 @@
 import 'package:admin/login.dart';
+import 'package:admin/navigation_pages/navigation_menu.dart';
 import 'package:admin/utils/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get_navigation/src/root/get_material_app.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
+void main() async {
   // Ensure Flutter binding is initialized
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -14,14 +16,17 @@ void main() {
     DeviceOrientation.portraitDown,
   ]);
 
-  // SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-  //   //statusBarColor: Color(0xFF240E5A),
-  // ));
-  runApp(const FirstPage());
+  // Get shared preferences instance
+  final prefs = await SharedPreferences.getInstance();
+  final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+
+  runApp(FirstPage(isLoggedIn: isLoggedIn));
 }
 
 class FirstPage extends StatefulWidget {
-  const FirstPage({super.key});
+  final bool isLoggedIn;
+
+  const FirstPage({super.key, required this.isLoggedIn});
 
   @override
   State<FirstPage> createState() => _FirstPageState();
@@ -35,7 +40,7 @@ class _FirstPageState extends State<FirstPage> {
       themeMode: ThemeMode.system,
       theme: EAppTheme.lightTheme,
       darkTheme: EAppTheme.darkTheme,
-      home: const Login(),
+      home: widget.isLoggedIn ? const NavigationMenu() : const Login(),
     );
   }
 }

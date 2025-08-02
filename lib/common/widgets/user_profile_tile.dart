@@ -34,7 +34,7 @@ class EUserProfileTile extends StatelessWidget {
       ),
       subtitle: Text(
         // controller.user.value.email,
-        'it.attendzone@gmail.com',
+        'admin@gmail.com',
         style:
         Theme.of(context).textTheme.bodyMedium!.apply(color: EColors.white),
       ),
