@@ -39,17 +39,11 @@ A powerful Flutter-based attendance and team management app built for companies.
 
 ## 📸 Demo
 
-You can use GIFs or short videos under this section:
-
 - [Home Dashboard](demo/home.gif)
 - [Announcements](demo/announcements.gif)
 - [Projects Page](demo/projects.gif)
 - [Analytics Dashboard](demo/analytics.gif)
-- [Dark Mode Toggle](demo/dark_mode.gif)
-
-**Recommended Tools:**
-- 📱 Record screen with: Screen Studio / OBS Studio
-- 🎞 Convert to GIF: ezgif.com
+- [Dark Mode Toggle](demo/profilescreen.gif)
 
 ## 📦 Tech Stack
 
@@ -78,3 +72,4 @@ git clone https://github.com/IMMANUEL-88/az_admin.git
 cd az_admin
 flutter pub get
 flutter run
+
