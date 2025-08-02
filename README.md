@@ -43,7 +43,7 @@ A powerful Flutter-based attendance and team management app built for companies.
   - Weekly analytics summary
   - Detailed charts and breakdowns
     
-  ![Analytics Dashboard](demo/analytics.gif)
+  ![Analytics Dashboard](demo/analytics2.gif)
 
 
 - **🌙🌞 Dark Mode / Light Mode**
@@ -85,5 +85,6 @@ git clone https://github.com/IMMANUEL-88/az_admin.git
 cd az_admin
 flutter pub get
 flutter run
+
 
 
