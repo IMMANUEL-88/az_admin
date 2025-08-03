@@ -43,7 +43,7 @@ A powerful Flutter-based attendance and team management app built for companies.
   - Weekly analytics summary
   - Detailed charts and breakdowns
     
-  ![Analytics Dashboard](demo/analytics2.gif)
+  ![Analytics Dashboard](demo/analytics3.gif)
 
 
 - **🌙🌞 Dark Mode / Light Mode**
@@ -101,6 +101,7 @@ flutter pub get
 flutter run
 ```
 **Note**: While you can clone and run the app locally, please be aware that the backend APIs are currently hosted on a local server (localhost). To test full functionality, you'll need to set up the backend environment separately.
+
 
 
 
