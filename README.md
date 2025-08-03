@@ -35,6 +35,7 @@ A powerful Flutter-based attendance and team management app built for companies.
 - **👥 User Management**
   - List of all registered users
   - View user details quickly
+  - Add new user easily
 
   ![User Page](demo/users.gif)
     
@@ -101,6 +102,7 @@ flutter pub get
 flutter run
 ```
 **Note**: While you can clone and run the app locally, please be aware that the backend APIs are currently hosted on a local server (localhost). To test full functionality, you'll need to set up the backend environment separately.
+
 
 
 
